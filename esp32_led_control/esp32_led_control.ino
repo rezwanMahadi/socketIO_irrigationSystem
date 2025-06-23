@@ -3,7 +3,7 @@
 #include <ArduinoJson.h>
 
 // WiFi credentials
-const char* ssid = "DazzelVolt";     // Replace with your WiFi name
+const char* ssid = "DazzleVolt";     // Replace with your WiFi name
 const char* password = "245025.Pa$$word"; // Replace with your WiFi password
 
 // Socket.IO server address and port - Heroku deployment

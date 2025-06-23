@@ -3,7 +3,7 @@
 import { useSocket } from './socketContext';
 
 export default function Home() {
-  const { isConnected, ledState, toggleLED, devices } = useSocket();
+  const { isConnected, ledState, toggleLED, devices, pinState } = useSocket();
 
   // Find if any ESP32 device is connected
   const anyDeviceConnected = devices.some(device => device.connected);
@@ -13,53 +13,62 @@ export default function Home() {
     .map(device => device.deviceId);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gray-100">
-      <h1 className="text-gray-900 text-4xl font-bold mb-8 text-center">ESP32 LED Control</h1>
-      
-      <div className="mb-8 text-center">
-        <div className="mb-2">
-          <span className="font-bold text-gray-900">Server Connection:</span> 
-          <span className={`ml-2 font-bold ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
-            {isConnected ? 'Connected' : 'Disconnected'}
-          </span>
-        </div>
+    <main className='min-h-screen bg-gray-100'>
+      <h1 className="text-gray-900 text-4xl font-bold pt-8 mb-8 text-center">Smart Irrigation System</h1>
 
-        <div className="mb-2">
-          <span className="font-bold text-gray-900">Device Status:</span> 
-          <span className={`ml-2 font-bold ${anyDeviceConnected ? 'text-green-600' : 'text-red-600'}`}>
-            {anyDeviceConnected ? 'Connected' : 'Disconnected'}
-          </span>
-        </div>
+      <div className="p-8 bg-white rounded-lg shadow-md max-w-lg w-full ml-5">
 
-        {connectedDeviceIds.length > 0 && (
-          <div className="mb-4 text-gray-700">
-            <span className="font-bold">Connected devices: </span>
-            {connectedDeviceIds.join(', ')}
+        <div className="mb-8">
+          <div className="mb-2">
+            <span className="font-bold text-gray-900">Server Connection:</span>
+            <span className={`ml-2 font-bold ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
+              {isConnected ? 'Connected' : 'Disconnected'}
+            </span>
           </div>
-        )}
-        
-        <div className="mb-4">
-          <span className="font-bold text-gray-900">LED Status:</span> 
-          <span className={`ml-2 font-bold ${ledState ? 'text-green-600' : 'text-gray-600'}`}>
-            {ledState ? 'ON' : 'OFF'}
-          </span>
-        </div>
-      </div>
-      
-      <button
-        onClick={toggleLED}
-        disabled={!isConnected || !anyDeviceConnected}
-        className={`px-6 py-3 rounded-full font-bold text-white transition-colors 
-          ${ledState 
-            ? 'bg-red-500 hover:bg-red-600' 
-            : 'bg-green-500 hover:bg-green-600'
-          } 
-          ${(!isConnected || !anyDeviceConnected) && 'opacity-50 cursor-not-allowed'}`}
-      >
-        {ledState ? 'Turn LED OFF' : 'Turn LED ON'}
-      </button>
 
-      {devices.length > 0 && (
+          <div className="mb-2">
+            <span className="font-bold text-gray-900">Device Status:</span>
+            <span className={`ml-2 font-bold ${anyDeviceConnected ? 'text-green-600' : 'text-red-600'}`}>
+              {anyDeviceConnected ? 'Connected' : 'Disconnected'}
+            </span>
+          </div>
+
+          {connectedDeviceIds.length > 0 && (
+            <div className="mb-4 text-gray-700">
+              <span className="font-bold">Connected devices: </span>
+              {connectedDeviceIds.join(', ')}
+            </div>
+          )}
+
+          <div className="">
+            <span className="font-bold text-gray-900">LED Status:</span>
+            <span className={`ml-2 font-bold ${ledState ? 'text-green-600' : 'text-gray-600'}`}>
+              {ledState ? 'ON' : 'OFF'}
+            </span>
+          </div>
+          <div className="">
+            <span className="font-bold text-gray-900">Pin Status:</span>
+            <span className={`ml-2 font-bold ${pinState ? 'text-green-600' : 'text-gray-600'}`}>
+              {pinState ? 'ON' : 'OFF'}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="font-bold text-gray-900">Test Connection</span>
+          <button
+            onClick={toggleLED}
+            disabled={!isConnected || !anyDeviceConnected}
+            className={`px-6 py-3 rounded-full font-bold text-white transition-colors 
+          ${ledState
+                ? 'bg-red-500 hover:bg-red-600'
+                : 'bg-green-500 hover:bg-green-600'
+              } 
+          ${(!isConnected || !anyDeviceConnected) && 'opacity-50 cursor-not-allowed'}`}
+          >
+            {ledState ? 'Turn LED OFF' : 'Turn LED ON'}
+          </button>
+        </div>
+        {/* {devices.length > 0 && (
         <div className="text-gray-900 mt-8 p-6 bg-white rounded-lg shadow-md max-w-lg w-full">
           <h2 className="text-xl font-bold mb-3">Device Information:</h2>
           <div className="space-y-4">
@@ -86,7 +95,8 @@ export default function Home() {
         <p className="mb-2">3. When you click the button, it sends a command to toggle the LED.</p>
         <p className="mb-2">4. The ESP32 receives this command and controls the onboard LED.</p>
         <p className="mb-2">5. Any state change is synchronized between all connected clients.</p>
+      </div> */}
       </div>
-    </div>
+    </main>
   );
 }

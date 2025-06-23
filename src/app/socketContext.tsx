@@ -17,6 +17,7 @@ interface SocketContextType {
   socket: Socket | null;
   isConnected: boolean;
   ledState: boolean;
+  pinState: boolean;
   devices: DeviceInfo[];
   toggleLED: () => void;
 }
@@ -25,6 +26,7 @@ const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
   ledState: false,
+  pinState: false,
   devices: [],
   toggleLED: () => {},
 });
@@ -35,6 +37,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [ledState, setLedState] = useState(false);
+  const [pinState, setPinState] = useState(false);
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
 
   useEffect(() => {
@@ -63,6 +66,11 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     socketInstance.on('ledState', (state: boolean) => {
       setLedState(state);
       console.log('LED state updated:', state);
+    });
+
+    socketInstance.on('pinState', (state: boolean) => {
+      setPinState(state);
+      console.log('Pin state updated:', state);
     });
     
     // Handle initial devices list
@@ -95,7 +103,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected, ledState, devices, toggleLED }}>
+    <SocketContext.Provider value={{ socket, isConnected, ledState, pinState, devices, toggleLED }}>
       {children}
     </SocketContext.Provider>
   );
