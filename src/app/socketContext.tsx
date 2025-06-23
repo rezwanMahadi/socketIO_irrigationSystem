@@ -28,22 +28,33 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     // Only connect in the browser environment
     if (typeof window === 'undefined') return;
 
-    const socketInstance = io();
+    // Connect to the Heroku Socket.IO server
+    const socketInstance = io('https://your-heroku-app-name.herokuapp.com', {
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      transports: ['websocket', 'polling']
+    });
+
     setSocket(socketInstance);
 
     socketInstance.on('connect', () => {
       setIsConnected(true);
-      console.log('Connected to WebSocket server');
+      console.log('Connected to Heroku WebSocket server');
     });
 
     socketInstance.on('disconnect', () => {
       setIsConnected(false);
-      console.log('Disconnected from WebSocket server');
+      console.log('Disconnected from Heroku WebSocket server');
     });
 
     socketInstance.on('ledState', (state: boolean) => {
       setLedState(state);
       console.log('LED state updated:', state);
+    });
+    
+    // Handle reconnection errors
+    socketInstance.on('reconnect_failed', () => {
+      console.log('Failed to reconnect to Heroku Socket.IO server');
     });
 
     return () => {

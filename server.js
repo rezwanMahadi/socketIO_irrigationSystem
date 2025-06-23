@@ -13,10 +13,23 @@ let ledState = false;
 
 app.prepare().then(() => {
   const server = http.createServer((req, res) => {
+    // Special handling for Socket.IO API route to mimic Vercel's behavior
+    if (req.url?.startsWith('/api/socketio')) {
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      });
+      res.end('Socket.IO OK (Dev Server)');
+      return;
+    }
+    
     return handle(req, res);
   });
   
   const io = new Server(server, {
+    path: '/socket.io/',
     cors: {
       origin: "*",
       methods: ["GET", "POST"]
@@ -45,5 +58,6 @@ app.prepare().then(() => {
   
   server.listen(PORT, () => {
     console.log(`> Server listening on http://localhost:${PORT}`);
+    console.log(`> Dev mode: ${dev ? 'enabled' : 'disabled'}`);
   });
 }); 

@@ -1,87 +1,69 @@
-# ESP32 LED Control via WebSockets
+# Irrigation Control System
 
-This project demonstrates how to control an ESP32's built-in LED through a Next.js web interface using WebSockets. The system allows for real-time control of the LED from any web browser.
+A real-time irrigation control system with ESP32 integration.
 
 ## Project Structure
 
-```
-irrigation_control/
-├── src/                   # Next.js application
-├── esp32_led_control/     # Arduino code for ESP32
-├── server.js              # WebSocket and Next.js server
-├── package.json           # Project dependencies
-└── README.md              # This file
-```
+This project consists of three main components:
 
-## Prerequisites
+1. **ESP32 Device**: Connects to the Heroku WebSocket server
+2. **Heroku Server**: Socket.IO server for real-time communication
+3. **Vercel Frontend**: Next.js application for user interface
 
-- Node.js (v18+ recommended)
-- Arduino IDE
-- ESP32 development board
-- WiFi connection
+## Deployment Instructions
 
-## Setup Instructions
+### Heroku Server Deployment
 
-### 1. Install Dependencies
-
-```bash
-npm install
-```
-
-### 2. Configure ESP32
-
-1. Open the `esp32_led_control/esp32_led_control.ino` file in Arduino IDE
-2. Install the required libraries:
-   - Arduino IDE > Tools > Manage Libraries...
-   - Search and install:
-     - `WebSockets` by Markus Sattler 
-     - `SocketIoClient` (or ArduinoWebsockets)
-     - `ArduinoJson` by Benoit Blanchon
-3. Modify the WiFi and server settings:
-   ```cpp
-   const char* ssid = "YOUR_WIFI_SSID";  // Replace with your WiFi name
-   const char* password = "YOUR_WIFI_PASSWORD"; // Replace with your WiFi password
-   const char* websocket_server = "YOUR_SERVER_IP"; // Replace with your server's IP address
-   const uint16_t websocket_port = 3000; // Default port is 3000
+1. Create a Heroku account if you don't have one
+2. Install the Heroku CLI
+3. Create a new Heroku app:
    ```
-4. Upload the code to your ESP32
+   heroku create your-app-name
+   ```
+4. Copy the server files to a separate directory:
+   ```
+   mkdir heroku-deploy
+   cp heroku-server.js Procfile heroku-package.json heroku-deploy/
+   cd heroku-deploy
+   mv heroku-package.json package.json
+   ```
+5. Initialize git and deploy:
+   ```
+   git init
+   git add .
+   git commit -m "Initial commit"
+   heroku git:remote -a your-app-name
+   git push heroku master
+   ```
+6. Verify the application is running:
+   ```
+   heroku open
+   ```
 
-### 3. Run the Next.js App
+### Vercel Frontend Deployment
 
-```bash
-npm run dev
-```
+1. Connect your GitHub repository to Vercel
+2. Configure the build settings:
+   - Build Command: `npm run build`
+   - Output Directory: `.next`
+3. Add environment variables if needed
+4. Deploy!
 
-This will start both the WebSocket server and Next.js app on http://localhost:3000
+### ESP32 Setup
 
-## Usage
+1. Update the ESP32 code with your actual Heroku app name:
+   ```cpp
+   const char* socketio_server = "your-heroku-app-name.herokuapp.com";
+   ```
+2. Update WiFi credentials
+3. Upload the code to your ESP32
 
-1. Open a web browser and navigate to http://localhost:3000
-2. You should see the ESP32 LED Control interface
-3. If everything is configured correctly:
-   - Connection Status should show "Connected"
-   - The LED status should reflect the current state of the ESP32's built-in LED
-4. Click the "Turn LED ON/OFF" button to control the LED
+## Development
 
-## How It Works
+- Run the Next.js frontend locally: `npm run dev`
+- Run the server locally for testing: `npm run dev:server`
 
-1. The Next.js web application serves the user interface
-2. A Socket.IO server manages WebSocket connections between clients
-3. When you click the button on the web interface:
-   - A WebSocket message is sent to the server
-   - The server broadcasts the message to all connected clients (including the ESP32)
-   - The ESP32 receives the message and changes the LED state accordingly
-   - The state change is synchronized between all connected clients
+## Important Notes
 
-## Troubleshooting
-
-- **ESP32 not connecting**: Ensure WiFi credentials and server IP are correct
-- **LED not responding**: Verify the LED pin number (usually GPIO 2 for built-in LED)
-- **Connection showing as "Disconnected"**: Check that both the web app and ESP32 are connecting to the same Socket.IO server
-
-## Extending the Project
-
-This project can be extended to control additional components:
-- Add more I/O pins for controlling relays, motors, etc.
-- Implement sensor readings and display them on the web interface
-- Create scheduled tasks for automated irrigation
+- Make sure to update `your-heroku-app-name.herokuapp.com` in both the ESP32 code and the Socket.IO context in the frontend
+- The ESP32 and frontend both connect to the Heroku server for real-time communication
