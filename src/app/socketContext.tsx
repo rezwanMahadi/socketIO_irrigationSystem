@@ -29,7 +29,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === 'undefined') return;
 
     // Connect to the Heroku Socket.IO server
-    const socketInstance = io('https://your-heroku-app-name.herokuapp.com', {
+    const socketInstance = io('https://irrigation-sys-v2-0a9f2f7f5b6e.herokuapp.com', {
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       transports: ['websocket', 'polling']

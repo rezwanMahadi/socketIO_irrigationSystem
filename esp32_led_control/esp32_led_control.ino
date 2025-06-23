@@ -7,7 +7,7 @@ const char* ssid = "DazzelVolt";     // Replace with your WiFi name
 const char* password = "245025.Pa$$word"; // Replace with your WiFi password
 
 // Socket.IO server address and port - Heroku deployment
-const char* socketio_server = "irrigation-sys-v2-0a9f2f7f5b6e.herokuapp.com"; // Replace with your Heroku app name
+const char* socketio_server = "irrigation-sys-v2-0a9f2f7f5b6e.herokuapp.com"; // Your actual Heroku app name
 const uint16_t socketio_port = 443; // HTTPS port for Heroku
 
 // Built-in LED pin - ESP32 usually has built-in LED on GPIO 2
