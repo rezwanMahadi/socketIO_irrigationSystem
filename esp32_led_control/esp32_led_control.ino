@@ -10,26 +10,69 @@ const char* password = "245025.Pa$$word"; // Replace with your WiFi password
 const char* socketio_server = "irrigation-sys-v2-0a9f2f7f5b6e.herokuapp.com"; // Your actual Heroku app name
 const uint16_t socketio_port = 443; // HTTPS port for Heroku
 
+// Device configuration
+const char* deviceId = "ESP32-IRRIGATION-001";  // Unique identifier for this device
+const char* deviceType = "Irrigation Controller";
+
 // Built-in LED pin - ESP32 usually has built-in LED on GPIO 2
 const int LED_PIN = 2;
 
 bool ledState = false;
+bool isRegistered = false;
 unsigned long lastHeartbeat = 0;
 const unsigned long heartbeatInterval = 30000; // 30 seconds
 
 SocketIOclient socketIO;
+
+// Register device with custom ID
+void registerDevice() {
+  if (!isRegistered) {
+    DynamicJsonDocument doc(512);
+    JsonArray array = doc.to<JsonArray>();
+    array.add("registerDevice");
+    
+    JsonObject deviceInfo = array.createNestedObject();
+    deviceInfo["deviceId"] = deviceId;
+    deviceInfo["deviceType"] = deviceType;
+    
+    String output;
+    serializeJson(doc, output);
+    
+    Serial.printf("[IOc] Registering device: %s\n", output.c_str());
+    socketIO.sendEVENT(output);
+    isRegistered = true;
+  }
+}
+
+// Send device heartbeat
+void sendHeartbeat() {
+  DynamicJsonDocument doc(512);
+  JsonArray array = doc.to<JsonArray>();
+  array.add("deviceHeartbeat");
+  array.add(deviceId);
+  
+  String output;
+  serializeJson(doc, output);
+  
+  Serial.printf("[IOc] Sending heartbeat: %s\n", output.c_str());
+  socketIO.sendEVENT(output);
+}
 
 // Callback function when socket receives an event
 void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length) {
   switch(type) {
     case sIOtype_DISCONNECT:
       Serial.println("[IOc] Disconnected from socket.io server");
+      isRegistered = false;
       break;
       
     case sIOtype_CONNECT:
       Serial.println("[IOc] Connected to socket.io server");
       // Join default namespace
       socketIO.send(sIOtype_CONNECT, "/");
+      // Register device after connection established
+      delay(1000); // Small delay to ensure connection is fully established
+      registerDevice();
       break;
       
     case sIOtype_EVENT:
@@ -118,17 +161,25 @@ void loop() {
   if(currentMillis - lastHeartbeat > heartbeatInterval) {
     lastHeartbeat = currentMillis;
     
-    // Send current LED state to synchronize with server
-    DynamicJsonDocument doc(512);
-    JsonArray array = doc.to<JsonArray>();
-    array.add("ledStatus");
-    array.add(ledState);
-    
-    String output;
-    serializeJson(doc, output);
-    
-    Serial.printf("[IOc] Sending heartbeat: %s\n", output.c_str());
-    socketIO.sendEVENT(output);
+    if (isRegistered) {
+      // Send heartbeat with device ID
+      sendHeartbeat();
+      
+      // Send current LED state to synchronize with server
+      DynamicJsonDocument doc(512);
+      JsonArray array = doc.to<JsonArray>();
+      array.add("ledStatus");
+      array.add(ledState);
+      
+      String output;
+      serializeJson(doc, output);
+      
+      Serial.printf("[IOc] Sending LED status: %s\n", output.c_str());
+      socketIO.sendEVENT(output);
+    } else if (socketIO.isConnected()) {
+      // Try to register again if connected but not registered
+      registerDevice();
+    }
   }
   
   // Small delay to prevent overwhelming the CPU

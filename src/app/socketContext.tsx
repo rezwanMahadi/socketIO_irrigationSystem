@@ -3,10 +3,21 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
+// Interface for device information
+interface DeviceInfo {
+  socketId: string;
+  deviceId: string;
+  deviceType: string;
+  lastSeen: string;
+  connected: boolean;
+  disconnectedAt?: string;
+}
+
 interface SocketContextType {
   socket: Socket | null;
   isConnected: boolean;
   ledState: boolean;
+  devices: DeviceInfo[];
   toggleLED: () => void;
 }
 
@@ -14,6 +25,7 @@ const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
   ledState: false,
+  devices: [],
   toggleLED: () => {},
 });
 
@@ -23,6 +35,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [ledState, setLedState] = useState(false);
+  const [devices, setDevices] = useState<DeviceInfo[]>([]);
 
   useEffect(() => {
     // Only connect in the browser environment
@@ -52,6 +65,18 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       console.log('LED state updated:', state);
     });
     
+    // Handle initial devices list
+    socketInstance.on('connectedDevices', (devicesList: DeviceInfo[]) => {
+      setDevices(devicesList);
+      console.log('Received connected devices:', devicesList);
+    });
+    
+    // Handle device updates (connections/disconnections)
+    socketInstance.on('deviceUpdate', (devicesList: DeviceInfo[]) => {
+      setDevices(devicesList);
+      console.log('Device update received:', devicesList);
+    });
+    
     // Handle reconnection errors
     socketInstance.on('reconnect_failed', () => {
       console.log('Failed to reconnect to Heroku Socket.IO server');
@@ -70,7 +95,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected, ledState, toggleLED }}>
+    <SocketContext.Provider value={{ socket, isConnected, ledState, devices, toggleLED }}>
       {children}
     </SocketContext.Provider>
   );
