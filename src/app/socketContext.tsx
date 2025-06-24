@@ -17,7 +17,11 @@ interface SocketContextType {
   socket: Socket | null;
   isConnected: boolean;
   ledState: boolean;
-  pinState: boolean;
+  sensorsData: {
+    soilMoisture: number;
+    temperature: number;
+    waterLevel: number;
+  };
   devices: DeviceInfo[];
   toggleLED: () => void;
 }
@@ -26,7 +30,11 @@ const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
   ledState: false,
-  pinState: false,
+  sensorsData: {
+    soilMoisture: 0,
+    temperature: 0,
+    waterLevel: 0
+  },
   devices: [],
   toggleLED: () => {},
 });
@@ -37,7 +45,11 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [ledState, setLedState] = useState(false);
-  const [pinState, setPinState] = useState(false);
+  const [sensorsData, setSensorsData] = useState({
+    soilMoisture: 0,
+    temperature: 0,
+    waterLevel: 0
+  });
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
 
   useEffect(() => {
@@ -68,9 +80,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       console.log('LED state updated:', state);
     });
 
-    socketInstance.on('pinState', (state: boolean) => {
-      setPinState(state);
-      console.log('Pin state updated:', state);
+    socketInstance.on('sensorsData', (soilMoisture: number, temperature: number, waterLevel: number) => {
+      console.log('Sensors data updated:', soilMoisture, temperature, waterLevel);
+      setSensorsData({ soilMoisture, temperature, waterLevel });
     });
     
     // Handle initial devices list
@@ -103,7 +115,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected, ledState, pinState, devices, toggleLED }}>
+    <SocketContext.Provider value={{ socket, isConnected, ledState, sensorsData, devices, toggleLED }}>
       {children}
     </SocketContext.Provider>
   );
