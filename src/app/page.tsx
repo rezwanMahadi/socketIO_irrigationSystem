@@ -2,6 +2,7 @@
 
 import { useSocket } from './socketContext';
 import React from "react";
+import Link from 'next/link';
 
 export default function Home() {
   const { isConnected, ledState, pumpMode, toggleLED, togglePumpMode, devices, sensorsData } = useSocket();  
@@ -16,6 +17,13 @@ export default function Home() {
   return (
     <main className='min-h-screen w-full bg-gray-200 flex flex-col items-center justify-center p-4'>
       <h1 className="text-gray-900 text-2xl md:text-3xl lg:text-4xl font-bold pt-4 md:pt-8 mb-4 md:mb-8 text-center">Smart Irrigation System</h1>
+      
+      <div className="w-full flex justify-center mb-4">
+        <Link href="/data" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
+          View Sensor Data History
+        </Link>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-7xl mx-auto">
 
         {/* Device Status */}

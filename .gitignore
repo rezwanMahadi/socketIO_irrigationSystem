@@ -43,3 +43,5 @@ heroku-package.json
 heroku-server.js
 /esp32_led_control/
 /Procfile
+
+/src/generated/prisma
