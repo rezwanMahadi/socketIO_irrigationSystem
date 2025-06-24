@@ -22,7 +22,7 @@ export default function Home() {
         <Link href="/data" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
           View Sensor Data History
         </Link>
-      </div>
+      </div> 
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-7xl mx-auto">
 
