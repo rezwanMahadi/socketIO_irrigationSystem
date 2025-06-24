@@ -8,8 +8,11 @@
 #include <Wire.h>
 
 // WiFi credentials
-const char *ssid = "DazzleVolt";          // Replace with your WiFi name
-const char *password = "245025.Pa$$word"; // Replace with your WiFi password
+// const char *ssid = "DazzleVolt";          // Replace with your WiFi name
+// const char *password = "245025.Pa$$word"; // Replace with your WiFi password
+
+const char *ssid = "Alpha";          // Replace with your WiFi name
+const char *password = "245025.asdfjkl"; // Replace with your WiFi password
 
 // Socket.IO server address and port - Heroku deployment
 const char *socketio_server =
