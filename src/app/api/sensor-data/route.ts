@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const endDate = url.searchParams.get('endDate');
   
   try {
-    // Build query filters
+    // Build query filtersss
     const where: Record<string, unknown> = {};
     if (startDate && endDate) {
       where.createdAt = {
