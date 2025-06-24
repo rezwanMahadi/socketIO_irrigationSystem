@@ -18,10 +18,6 @@ interface SocketContextType {
   isConnected: boolean;
   ledState: boolean;
   pumpMode: boolean;
-  controllingStatus: {
-    newLedState: boolean;
-    selectedPumpMode: boolean;
-  };
   sensorsData: {
     soilMoisture: number;
     temperature: number;
@@ -37,10 +33,6 @@ const SocketContext = createContext<SocketContextType>({
   isConnected: false,
   ledState: false,
   pumpMode: false,
-  controllingStatus: {
-    newLedState: false,
-    selectedPumpMode: false
-  },
   sensorsData: {
     soilMoisture: 0,
     temperature: 0,
@@ -151,7 +143,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected, ledState, pumpMode, controllingStatus, sensorsData, devices, toggleLED, togglePumpMode }}>
+    <SocketContext.Provider value={{ socket, isConnected, ledState, pumpMode, sensorsData, devices, toggleLED, togglePumpMode }}>
       {children}
     </SocketContext.Provider>
   );

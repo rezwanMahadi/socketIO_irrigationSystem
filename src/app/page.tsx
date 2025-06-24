@@ -4,7 +4,7 @@ import { useSocket } from './socketContext';
 import React from "react";
 
 export default function Home() {
-  const { isConnected, ledState, pumpMode, controllingStatus, toggleLED, togglePumpMode, devices, sensorsData } = useSocket();  
+  const { isConnected, ledState, pumpMode, toggleLED, togglePumpMode, devices, sensorsData } = useSocket();  
   // Find if any ESP32 device is connected
   const anyDeviceConnected = devices.some(device => device.connected);
   // Get all connected device IDs
