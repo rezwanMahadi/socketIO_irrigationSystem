@@ -49,10 +49,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [ledState, setLedState] = useState(false);
-  const [controllingStatus, setControllingStatus] = useState({
-    newLedState: false,
-    selectedPumpMode: false
-  });
   const [sensorsData, setSensorsData] = useState({
     soilMoisture: 0,
     temperature: 0,
@@ -93,15 +89,15 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       console.log('Pump mode updated:', pumpMode);
     });
 
-    socketInstance.on('controllingStatus', (newLedState: boolean, selectedPumpMode: boolean) => {
-      setControllingStatus({ newLedState, selectedPumpMode });
-      console.log('Controlling status updated:', newLedState, selectedPumpMode);
-    });
+    // socketInstance.on('controllingStatus', (newLedState: boolean, selectedPumpMode: boolean) => {
+    //   setControllingStatus({ newLedState, selectedPumpMode });
+    //   console.log('Controlling status updated:', newLedState, selectedPumpMode);
+    // });
 
     socketInstance.on('sensorsData_controllingStatus', (soilMoisture: number, temperature: number, waterLevel: number, newLedState: boolean, selectedPumpMode: boolean) => {
       console.log('Sensors data and controlling status updated:', soilMoisture, temperature, waterLevel, newLedState, selectedPumpMode);
       setSensorsData({ soilMoisture, temperature, waterLevel });
-      setControllingStatus({ newLedState, selectedPumpMode });
+      // setControllingStatus({ newLedState, selectedPumpMode });
     });
     
     // Handle initial devices list
