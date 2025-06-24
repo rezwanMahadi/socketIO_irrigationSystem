@@ -38,6 +38,9 @@ unsigned long lastPinHeartbeat = 0;
 const unsigned long heartbeatInterval = 30000;   // 30 seconds
 const unsigned long pinheartbeatInterval = 1000; // 1 second
 bool pinState = false;
+int waterLevelValue = 0;
+int SOIL_MOISTURE_VALUE = 0;
+bool selectedPumpMode = false;
 
 SocketIOclient socketIO;
 OneWire oneWire(ONE_WIRE_BUS);
@@ -105,8 +108,7 @@ void sendHeartbeat() {
 }
 
 // Callback function when socket receives an event
-void socketIOEvent(socketIOmessageType_t type, uint8_t *payload,
-                   size_t length) {
+void socketIOEvent(socketIOmessageType_t type, uint8_t *payload, size_t length) {
   switch (type) {
   case sIOtype_DISCONNECT:
     Serial.println("[IOc] Disconnected from socket.io server");
@@ -139,7 +141,7 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t *payload,
     if (eventName == "ledState") {
       // Handle LED state update event
       bool newState = doc[1].as<bool>();
-      Serial.printf("[IOc] LED state update: %s\n", newState ? "ON" : "OFF");
+      Serial.printf("LED state update: %s\n", newState ? "ON" : "OFF");
 
       // Update LED state and physical LED
       ledState = newState;
@@ -178,6 +180,14 @@ int waterLevel() {
   long duration = pulseIn(ECHO_PIN, HIGH);
   int distance = duration * 0.034 / 2;
   return distance;
+}
+
+void autoPumpControl() {
+  if (selectedPumpMode) {
+    digitalWrite(PUMP_1, HIGH);
+    digitalWrite(PUMP_2, HIGH);
+  }
+  return;
 }
 
 void setup() {
@@ -226,6 +236,7 @@ void setup() {
 void loop() {
   while (WiFi.status() == WL_CONNECTED) {
     socketIO.loop();
+    autoPumpControl();
 
     // Send heartbeat to keep connection alive
     unsigned long currentMillis = millis();
@@ -235,18 +246,6 @@ void loop() {
       if (isRegistered) {
         // Send heartbeat with device ID
         sendHeartbeat();
-
-        // Send current LED state to synchronize with server
-        DynamicJsonDocument doc(512);
-        JsonArray array = doc.to<JsonArray>();
-        array.add("ledStatus");
-        array.add(ledState);
-
-        String output;
-        serializeJson(doc, output);
-
-        Serial.printf("[IOc] Sending LED status: %s\n", output.c_str());
-        socketIO.sendEVENT(output);
       } else if (socketIO.isConnected()) {
         // Try to register again if connected but not registered
         registerDevice();
@@ -256,10 +255,10 @@ void loop() {
     if (millis() - lastPinHeartbeat > pinheartbeatInterval) {
       lastPinHeartbeat = millis();
 
-      int SOIL_MOISTURE_VALUE = analogRead(SOIL_MOISTURE_PIN);
+      SOIL_MOISTURE_VALUE = analogRead(SOIL_MOISTURE_PIN);
       SOIL_MOISTURE_VALUE = map(SOIL_MOISTURE_VALUE, 0, 4095, 100, 0);
       float temperature = getTemperature();
-      int waterLevelValue = waterLevel();
+      waterLevelValue = waterLevel();
       waterLevelValue = map(waterLevelValue, 17, 4, 0, 100);
 
       if (isRegistered) {
@@ -269,12 +268,14 @@ void loop() {
         // Send current LED state to synchronize with server
         DynamicJsonDocument doc(1024);
         JsonArray array = doc.to<JsonArray>();
-        array.add("sensorsData");
+        array.add("sensorsData_controllingStatus");
 
-        JsonObject sensorValues = array.createNestedObject();
-        sensorValues["soilMoisture"] = SOIL_MOISTURE_VALUE;
-        sensorValues["temperature"] = temperature;
-        sensorValues["waterLevel"] = waterLevelValue;
+        JsonObject statusValues = array.createNestedObject();
+        statusValues["soilMoisture"] = SOIL_MOISTURE_VALUE;
+        statusValues["temperature"] = temperature;
+        statusValues["waterLevel"] = waterLevelValue;
+        statusValues["newLedState"] = ledState;
+        statusValues["selectedPumpMode"] = selectedPumpMode;
 
         String output;
         serializeJson(doc, output);

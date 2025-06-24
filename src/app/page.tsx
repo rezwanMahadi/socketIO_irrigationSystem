@@ -1,10 +1,10 @@
 'use client';
 
 import { useSocket } from './socketContext';
+import React from "react";
 
 export default function Home() {
-  const { isConnected, ledState, toggleLED, devices, sensorsData } = useSocket();
-
+  const { isConnected, ledState, pumpMode, controllingStatus, toggleLED, togglePumpMode, devices, sensorsData } = useSocket();  
   // Find if any ESP32 device is connected
   const anyDeviceConnected = devices.some(device => device.connected);
   // Get all connected device IDs
@@ -12,13 +12,16 @@ export default function Home() {
     .filter(device => device.connected)
     .map(device => device.deviceId);
 
-  return (
-    <main className='min-h-screen bg-gray-100'>
-      <h1 className="text-gray-900 text-4xl font-bold pt-8 mb-8 text-center">Smart Irrigation System</h1>
-      <div className="flex flex-col gap-4">
-        <div className="p-8 bg-white rounded-lg shadow-md max-w-lg w-full ml-5">
 
-          <div className="mb-8">
+  return (
+    <main className='min-h-screen w-full bg-gray-200 flex flex-col items-center justify-center p-4'>
+      <h1 className="text-gray-900 text-2xl md:text-3xl lg:text-4xl font-bold pt-4 md:pt-8 mb-4 md:mb-8 text-center">Smart Irrigation System</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-7xl mx-auto">
+
+        {/* Device Status */}
+        <div className="p-4 md:p-6 lg:p-8 bg-white rounded-lg shadow-md w-full">
+          <h2 className="text-center text-lg md:text-xl text-gray-900 font-bold mb-3">Device Status</h2>
+          <div className="mb-6 md:mb-8">  
             <div className="mb-2">
               <span className="font-bold text-gray-900">Server Connection:</span>
               <span className={`ml-2 font-bold ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
@@ -48,25 +51,72 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 md:gap-4">
             <span className="font-bold text-gray-900">Test Connection</span>
             <button
               onClick={toggleLED}
               disabled={!isConnected || !anyDeviceConnected}
-              className={`px-6 py-3 rounded-full font-bold text-white transition-colors 
-          ${ledState
+              className={`px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-white transition-colors 
+              ${ledState
                   ? 'bg-red-500 hover:bg-red-600'
                   : 'bg-green-500 hover:bg-green-600'
                 } 
-          ${(!isConnected || !anyDeviceConnected) && 'opacity-50 cursor-not-allowed'}`}
+            ${(!isConnected || !anyDeviceConnected) && 'opacity-50 cursor-not-allowed'}`}
             >
               {ledState ? 'Turn LED OFF' : 'Turn LED ON'}
             </button>
           </div>
         </div>
 
-        <div className="p-8 bg-white rounded-lg shadow-md max-w-lg w-full ml-5">
-          <div className="mb-8">
+        {/* Pump Control */}
+        <div className="p-4 md:p-6 lg:p-8 bg-white rounded-lg shadow-md w-full">
+          <h2 className="text-center text-lg md:text-xl text-gray-900 font-bold mb-3">Pump Control</h2>
+          <div className="flex flex-col gap-4 justify-center items-center">
+            <div>
+              <span className="font-bold text-gray-900 text-base md:text-lg">{pumpMode ? 'Auto Mode' : 'Manual Mode'} Selected</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2 md:gap-4 justify-center items-center">
+              <span className={`font-bold ${pumpMode ? 'text-gray-900' : 'text-[#86d3ff]'} text-sm md:text-lg`}>Manual Mode</span>
+              {/* Render the Switch component only after client-side hydration */}
+              <div className="flex justify-center items-center">
+                <button
+                  onClick={togglePumpMode}
+                  disabled={!isConnected || !anyDeviceConnected}
+                  className={`px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-white transition-colors 
+                  ${pumpMode
+                      ? 'bg-red-500 hover:bg-red-600'
+                      : 'bg-green-500 hover:bg-green-600'
+                    } 
+                  ${(!isConnected || !anyDeviceConnected) && 'opacity-50 cursor-not-allowed'}`}
+                >
+                  {pumpMode ? 'Auto Mode' : 'Manual Mode'}
+                </button>
+              </div>
+              <span className={`font-bold ${pumpMode ? 'text-green-600' : 'text-gray-900'} text-sm md:text-lg`}>Auto Mode</span>
+            </div>
+          </div>
+
+          <div className="mt-6 md:mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="mb-2">
+              <span className="font-bold text-gray-900">Reservoir 1:</span>
+              <span className="ml-2 font-bold text-gray-900">OFF</span>
+            </div>
+            <div className="mb-2">
+              <span className="font-bold text-gray-900">Reservoir 2:</span>
+              <span className="ml-2 font-bold text-gray-900">OFF</span>
+            </div>
+            <div className="mb-2">
+              <span className="font-bold text-gray-900">Drainage:</span>
+              <span className="ml-2 font-bold text-gray-900">OFF</span>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Sensors Status */}
+        <div className="p-4 md:p-6 lg:p-8 bg-white rounded-lg shadow-md w-full md:col-span-2 lg:col-span-1">
+          <h2 className="text-center text-lg md:text-xl text-gray-900 font-bold mb-3">Sensors Status</h2>
+          <div className="mb-6 md:mb-8">
             <div className="mb-2">
               <span className="font-bold text-gray-900">Soil Moisture:</span>
               <span className="ml-2 font-bold text-gray-900">{sensorsData.soilMoisture}%</span>
@@ -81,6 +131,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+
       </div>
       {/* {devices.length > 0 && (
         <div className="text-gray-900 mt-8 p-6 bg-white rounded-lg shadow-md max-w-lg w-full">
