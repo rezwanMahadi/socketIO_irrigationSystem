@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   
   try {
     // Build query filters
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (startDate && endDate) {
       where.createdAt = {
         gte: new Date(startDate),

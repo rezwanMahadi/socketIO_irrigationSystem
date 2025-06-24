@@ -53,7 +53,7 @@ export default function DataPage() {
   
   useEffect(() => {
     fetchData();
-  }, [pagination.offset, pagination.limit]);
+  }, [pagination.offset, pagination.limit, startDate, endDate]);
   
   const handleFilterSubmit = (e: React.FormEvent) => {
     e.preventDefault();

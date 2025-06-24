@@ -1,0 +1,9 @@
+# Ignore Prisma generated files
+src/generated/
+prisma/
+
+# Build files
+.next/
+out/
+build/
+dist/ 
