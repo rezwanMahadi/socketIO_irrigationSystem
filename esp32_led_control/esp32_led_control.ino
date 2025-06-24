@@ -26,8 +26,10 @@ const char *deviceType = "Irrigation Controller";
 const int LED_PIN = 2;
 const int SOIL_MOISTURE_PIN = 34;
 const int ONE_WIRE_BUS = 4;
-const int ECHO_PIN = 12;
-const int TRIG_PIN = 13;
+const int ECHO_PIN = 18;
+const int TRIG_PIN = 5;
+const int PUMP_1 = 12;
+const int PUMP_2 = 14;
 
 bool ledState = false;
 bool isRegistered = false;
@@ -199,6 +201,10 @@ void setup() {
   digitalWrite(LED_PIN, LOW);
   pinMode(ECHO_PIN, INPUT);
   pinMode(TRIG_PIN, OUTPUT);
+  pinMode(PUMP_1, OUTPUT);
+  pinMode(PUMP_2, OUTPUT);
+  digitalWrite(PUMP_1, LOW);
+  digitalWrite(PUMP_2, LOW);
 
   // Connect to WiFi
   WiFi.begin(ssid, password);
@@ -251,9 +257,10 @@ void loop() {
       lastPinHeartbeat = millis();
 
       int SOIL_MOISTURE_VALUE = analogRead(SOIL_MOISTURE_PIN);
-      SOIL_MOISTURE_VALUE = map(SOIL_MOISTURE_VALUE, 0, 4095, 0, 100);
+      SOIL_MOISTURE_VALUE = map(SOIL_MOISTURE_VALUE, 0, 4095, 100, 0);
       float temperature = getTemperature();
-      int waterLevel = waterLevel();
+      int waterLevelValue = waterLevel();
+      waterLevelValue = map(waterLevelValue, 17, 4, 0, 100);
 
       if (isRegistered) {
         // Send heartbeat with device ID
@@ -267,7 +274,7 @@ void loop() {
         JsonObject sensorValues = array.createNestedObject();
         sensorValues["soilMoisture"] = SOIL_MOISTURE_VALUE;
         sensorValues["temperature"] = temperature;
-        sensorValues["waterLevel"] = waterLevel;
+        sensorValues["waterLevel"] = waterLevelValue;
 
         String output;
         serializeJson(doc, output);

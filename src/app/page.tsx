@@ -77,7 +77,7 @@ export default function Home() {
             </div>
             <div className="mb-2">
               <span className="font-bold text-gray-900">Water Level:</span>
-              <span className="ml-2 font-bold text-gray-900">{sensorsData.waterLevel} cm</span>
+              <span className="ml-2 font-bold text-gray-900">{sensorsData.waterLevel}%</span>
             </div>
           </div>
         </div>
