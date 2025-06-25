@@ -8,11 +8,11 @@
 #include <Wire.h>
 
 // WiFi credentials
-// const char *ssid = "DazzleVolt";          // Replace with your WiFi name
-// const char *password = "245025.Pa$$word"; // Replace with your WiFi password
+const char *ssid = "DazzleVolt";          // Replace with your WiFi name
+const char *password = "245025.Pa$$word"; // Replace with your WiFi password
 
-const char *ssid = "Alpha";          // Replace with your WiFi name
-const char *password = "245025.asdfjkl"; // Replace with your WiFi password
+// const char *ssid = "Alpha";              // Replace with your WiFi name
+// const char *password = "245025.asdfjkl"; // Replace with your WiFi password
 
 // Socket.IO server address and port - Heroku deployment
 const char *socketio_server =
@@ -111,7 +111,8 @@ void sendHeartbeat() {
 }
 
 // Callback function when socket receives an event
-void socketIOEvent(socketIOmessageType_t type, uint8_t *payload, size_t length) {
+void socketIOEvent(socketIOmessageType_t type, uint8_t *payload,
+                   size_t length) {
   switch (type) {
   case sIOtype_DISCONNECT:
     Serial.println("[IOc] Disconnected from socket.io server");
