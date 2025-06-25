@@ -5,7 +5,7 @@ import React from "react";
 import Link from 'next/link';
 
 export default function Home() {
-  const { isConnected, ledState, pumpMode, toggleLED, togglePumpMode, devices, sensorsData } = useSocket();
+  const { isConnected, ledState, pumpMode, reservoir1, reservoir2, toggleLED, togglePumpMode, toggleReservoir1, toggleReservoir2, devices, sensorsData } = useSocket();
   // Find if any ESP32 device is connected
   const anyDeviceConnected = devices.some(device => device.connected);
   // Get all connected device IDs
@@ -80,22 +80,20 @@ export default function Home() {
         <div className="p-4 md:p-6 lg:p-8 bg-white rounded-lg shadow-md w-full">
           <h2 className="text-center text-lg md:text-xl text-gray-900 font-bold mb-3">Pump Control</h2>
           <div className="flex flex-col gap-4 justify-center items-center">
-            <div>
+            {/* <div>
               <span className="font-bold text-gray-900 text-base md:text-lg">{pumpMode ? 'Auto Mode' : 'Manual Mode'} Selected</span>
-            </div>
+            </div> */}
             <div className="grid grid-cols-2 gap-2 md:gap-4 justify-center items-center">
-              <span className={`font-bold ${pumpMode ? 'text-gray-900' : 'text-[#86d3ff]'} text-sm md:text-lg`}>Manual Mode</span>
-              <span className={`font-bold ${pumpMode ? 'text-green-600' : 'text-gray-900'} text-sm md:text-lg`}>Auto Mode</span>
+              <div className="flex flex-col gap-2 justify-center items-center">
+                <span className={`font-bold ${pumpMode ? 'text-gray-300' : 'text-green-600'} text-sm md:text-lg`}>Manual Mode Selected</span>
+                <span className={`font-bold ${pumpMode ? 'text-green-600' : 'text-gray-300'} text-sm md:text-lg`}>Auto Mode Selected</span>
+              </div>
               {/* Mode selection button */}
               <div className="flex justify-center items-center">
                 <button
                   onClick={togglePumpMode}
                   disabled={!isConnected || !anyDeviceConnected}
-                  className={`px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-white transition-colors 
-                  ${pumpMode
-                      ? 'bg-red-500 hover:bg-red-600'
-                      : 'bg-green-500 hover:bg-green-600'
-                    } 
+                  className={`px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-white transition-colors bg-green-500 hover:bg-green-600
                   ${(!isConnected || !anyDeviceConnected) && 'opacity-50 cursor-not-allowed'}`}
                 >
                   {pumpMode ? 'Auto Mode' : 'Manual Mode'}
@@ -104,21 +102,42 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-6 md:mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="mb-2">
-              <span className="font-bold text-gray-900">Reservoir 1:</span>
-              <span className="ml-2 font-bold text-gray-900">OFF</span>
+          <div className="mt-6 md:mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="mb-2 flex flex-col gap-2 justify-center items-center border-2 border-gray-300 rounded-lg p-2">
+              <div>
+                <span className="font-bold text-gray-900">Reservoir 1 Status:</span>
+                <span className={`ml-2 font-bold ${reservoir1 ? "text-green-600" : "text-gray-600"}`}>{reservoir1 ? 'ON' : 'OFF'}</span>
+              </div>
+              <div className="flex justify-center items-center">
+                <button
+                  onClick={toggleReservoir1}
+                  disabled={!isConnected || !anyDeviceConnected || pumpMode === true}
+                  className={`px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-white transition-colors
+                    ${reservoir1 ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}
+                    ${(!isConnected || !anyDeviceConnected || pumpMode === true) && 'disabled opacity-50 cursor-not-allowed'}`}
+                >
+                  {reservoir1 ? 'Turn OFF' : 'Turn ON'}
+                </button>
+              </div>
             </div>
-            <div className="mb-2">
-              <span className="font-bold text-gray-900">Reservoir 2:</span>
-              <span className="ml-2 font-bold text-gray-900">OFF</span>
-            </div>
-            <div className="mb-2">
-              <span className="font-bold text-gray-900">Drainage:</span>
-              <span className="ml-2 font-bold text-gray-900">OFF</span>
+            <div className="mb-2 flex flex-col gap-2 justify-center items-center border-2 border-gray-300 rounded-lg p-2">
+              <div>
+                <span className="font-bold text-gray-900">Reservoir 2 Status:</span>
+                <span className={`ml-2 font-bold ${reservoir2 ? "text-green-600" : "text-gray-600"}`}>{reservoir2 ? 'ON' : 'OFF'}</span>
+              </div>
+              <div className="flex justify-center items-center">
+              <button
+                  onClick={toggleReservoir2}
+                  disabled={!isConnected || !anyDeviceConnected || pumpMode === true}
+                  className={`px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-white transition-colors
+                    ${reservoir2 ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}
+                    ${(!isConnected || !anyDeviceConnected || pumpMode === true) && 'disabled opacity-50 cursor-not-allowed'}`}
+                >
+                  {reservoir2 ? 'Turn OFF' : 'Turn ON'}
+                </button>
+              </div>
             </div>
           </div>
-
         </div>
 
         {/* Sensors Status */}

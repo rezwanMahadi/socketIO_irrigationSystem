@@ -31,8 +31,8 @@ const int SOIL_MOISTURE_PIN = 34;
 const int ONE_WIRE_BUS = 4;
 const int ECHO_PIN = 18;
 const int TRIG_PIN = 5;
-const int PUMP_1 = 12;
-const int PUMP_2 = 14;
+const int PUMP_1 = 14;
+const int PUMP_2 = 12;
 
 bool ledState = false;
 bool isRegistered = false;
@@ -44,6 +44,8 @@ bool pinState = false;
 int waterLevelValue = 0;
 int SOIL_MOISTURE_VALUE = 0;
 bool selectedPumpMode = false;
+bool reservoir1 = false;
+bool reservoir2 = false;
 
 SocketIOclient socketIO;
 OneWire oneWire(ONE_WIRE_BUS);
@@ -111,8 +113,7 @@ void sendHeartbeat() {
 }
 
 // Callback function when socket receives an event
-void socketIOEvent(socketIOmessageType_t type, uint8_t *payload,
-                   size_t length) {
+void socketIOEvent(socketIOmessageType_t type, uint8_t *payload, size_t length) {
   switch (type) {
   case sIOtype_DISCONNECT:
     Serial.println("[IOc] Disconnected from socket.io server");
@@ -150,6 +151,32 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t *payload,
       // Update LED state and physical LED
       ledState = newState;
       digitalWrite(LED_PIN, ledState ? HIGH : LOW);
+    }
+    if (eventName == "selectedPumpMode") {
+      // Handle selected pump mode update event
+      bool newState = doc[1].as<bool>();
+      Serial.printf("Selected pump mode update: %s\n", newState ? "ON" : "OFF");
+
+      // Update selected pump mode and physical pump mode
+      selectedPumpMode = newState;
+    }
+    if (eventName == "reservoir1State" && selectedPumpMode == false) {
+      // Handle reservoir 1 state update event
+      bool newState = doc[1].as<bool>();
+      Serial.printf("Reservoir 1 state update: %s\n", newState ? "ON" : "OFF");
+
+      // Update reservoir 1 state and physical reservoir 1
+      reservoir1 = newState;
+      digitalWrite(PUMP_1, reservoir1 ? HIGH : LOW);
+    }
+    if (eventName == "reservoir2State" && selectedPumpMode == false) {
+      // Handle reservoir 2 state update event
+      bool newState = doc[1].as<bool>();
+      Serial.printf("Reservoir 2 state update: %s\n", newState ? "ON" : "OFF");
+
+      // Update reservoir 2 state and physical reservoir 2
+      reservoir2 = newState;
+      digitalWrite(PUMP_2, reservoir2 ? HIGH : LOW);
     }
   } break;
 
@@ -219,7 +246,6 @@ void setup() {
   pinMode(PUMP_2, OUTPUT);
   digitalWrite(PUMP_1, LOW);
   digitalWrite(PUMP_2, LOW);
-
   // Connect to WiFi
   WiFi.begin(ssid, password);
   wifiConnect();

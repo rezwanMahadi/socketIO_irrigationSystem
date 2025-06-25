@@ -18,6 +18,8 @@ interface SocketContextType {
   isConnected: boolean;
   ledState: boolean;
   pumpMode: boolean;
+  reservoir1: boolean;
+  reservoir2: boolean;
   sensorsData: {
     soilMoisture: number;
     temperature: number;
@@ -26,21 +28,27 @@ interface SocketContextType {
   devices: DeviceInfo[];
   toggleLED: () => void;
   togglePumpMode: () => void;
-  }
+  toggleReservoir1: () => void;
+  toggleReservoir2: () => void;
+}
 
 const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
   ledState: false,
   pumpMode: false,
+  reservoir1: false,
+  reservoir2: false,
   sensorsData: {
     soilMoisture: 0,
     temperature: 0,
     waterLevel: 0
   },
   devices: [],
-  toggleLED: () => {},
-  togglePumpMode: () => {},
+  toggleLED: () => { },
+  togglePumpMode: () => { },
+  toggleReservoir1: () => { },
+  toggleReservoir2: () => { },
 });
 
 export const useSocket = () => useContext(SocketContext);
@@ -49,6 +57,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [ledState, setLedState] = useState(false);
+  const [reservoir1, setReservoir1] = useState(false);
+  const [reservoir2, setReservoir2] = useState(false);
   const [sensorsData, setSensorsData] = useState({
     soilMoisture: 0,
     temperature: 0,
@@ -89,6 +99,16 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       console.log('Pump mode updated:', pumpMode);
     });
 
+    socketInstance.on('reservoir1State', (reservoir1: boolean) => {
+      setReservoir1(reservoir1);
+      console.log('Reservoir 1 state updated:', reservoir1);
+    });
+
+    socketInstance.on('reservoir2State', (reservoir2: boolean) => {
+      setReservoir2(reservoir2);
+      console.log('Reservoir 2 state updated:', reservoir2);
+    });
+
     // socketInstance.on('controllingStatus', (newLedState: boolean, selectedPumpMode: boolean) => {
     //   setControllingStatus({ newLedState, selectedPumpMode });
     //   console.log('Controlling status updated:', newLedState, selectedPumpMode);
@@ -99,19 +119,19 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       setSensorsData({ soilMoisture, temperature, waterLevel });
       // setControllingStatus({ newLedState, selectedPumpMode });
     });
-    
+
     // Handle initial devices list
     socketInstance.on('connectedDevices', (devicesList: DeviceInfo[]) => {
       setDevices(devicesList);
       console.log('Received connected devices:', devicesList);
     });
-    
+
     // Handle device updates (connections/disconnections)
     socketInstance.on('deviceUpdate', (devicesList: DeviceInfo[]) => {
       setDevices(devicesList);
       console.log('Device update received:', devicesList);
     });
-    
+
     // Handle reconnection errors
     socketInstance.on('reconnect_failed', () => {
       console.log('Failed to reconnect to Heroku Socket.IO server');
@@ -138,8 +158,39 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const toggleReservoir1 = () => {
+    if (socket) {
+      const newState = !reservoir1;
+      console.log('Toggling reservoir 1 to:', newState);
+      socket.emit('toggleReservoir1', newState);
+    }
+  };
+
+  const toggleReservoir2 = () => {
+    if (socket) {
+      const newState = !reservoir2;
+      console.log('Toggling reservoir 2 to:', newState);
+      socket.emit('toggleReservoir2', newState);
+    }
+  };
+
   return (
-    <SocketContext.Provider value={{ socket, isConnected, ledState, pumpMode, sensorsData, devices, toggleLED, togglePumpMode }}>
+    <SocketContext.Provider value={
+      {
+        socket,
+        isConnected,
+        ledState,
+        pumpMode,
+        reservoir1,
+        reservoir2,
+        sensorsData,
+        devices,
+        toggleLED,
+        togglePumpMode,
+        toggleReservoir1,
+        toggleReservoir2
+      }
+    }>
       {children}
     </SocketContext.Provider>
   );
