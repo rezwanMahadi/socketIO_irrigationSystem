@@ -45,3 +45,5 @@ heroku-server.js
 /Procfile
 
 /src/generated/prisma
+
+.vercel

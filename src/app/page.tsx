@@ -5,7 +5,7 @@ import React from "react";
 import Link from 'next/link';
 
 export default function Home() {
-  const { isConnected, ledState, pumpMode, toggleLED, togglePumpMode, devices, sensorsData } = useSocket();  
+  const { isConnected, ledState, pumpMode, toggleLED, togglePumpMode, devices, sensorsData } = useSocket();
   // Find if any ESP32 device is connected
   const anyDeviceConnected = devices.some(device => device.connected);
   // Get all connected device IDs
@@ -17,19 +17,19 @@ export default function Home() {
   return (
     <main className='min-h-screen w-full bg-gray-200 flex flex-col items-center justify-center p-4'>
       <h1 className="text-gray-900 text-2xl md:text-3xl lg:text-4xl font-bold pt-4 md:pt-8 mb-4 md:mb-8 text-center">Smart Irrigation System</h1>
-      
+
       <div className="w-full flex justify-center mb-4">
         <Link href="/data" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
           View Sensor Data History
         </Link>
-      </div> 
-      
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-7xl mx-auto">
 
         {/* Device Status */}
         <div className="p-4 md:p-6 lg:p-8 bg-white rounded-lg shadow-md w-full">
           <h2 className="text-center text-lg md:text-xl text-gray-900 font-bold mb-3">Device Status</h2>
-          <div className="mb-6 md:mb-8">  
+          <div className="mb-6 md:mb-8">
             <div className="mb-2">
               <span className="font-bold text-gray-900">Server Connection:</span>
               <span className={`ml-2 font-bold ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
@@ -83,9 +83,10 @@ export default function Home() {
             <div>
               <span className="font-bold text-gray-900 text-base md:text-lg">{pumpMode ? 'Auto Mode' : 'Manual Mode'} Selected</span>
             </div>
-            <div className="grid grid-cols-3 gap-2 md:gap-4 justify-center items-center">
+            <div className="grid grid-cols-2 gap-2 md:gap-4 justify-center items-center">
               <span className={`font-bold ${pumpMode ? 'text-gray-900' : 'text-[#86d3ff]'} text-sm md:text-lg`}>Manual Mode</span>
-              {/* Render the Switch component only after client-side hydration */}
+              <span className={`font-bold ${pumpMode ? 'text-green-600' : 'text-gray-900'} text-sm md:text-lg`}>Auto Mode</span>
+              {/* Mode selection button */}
               <div className="flex justify-center items-center">
                 <button
                   onClick={togglePumpMode}
@@ -100,7 +101,6 @@ export default function Home() {
                   {pumpMode ? 'Auto Mode' : 'Manual Mode'}
                 </button>
               </div>
-              <span className={`font-bold ${pumpMode ? 'text-green-600' : 'text-gray-900'} text-sm md:text-lg`}>Auto Mode</span>
             </div>
           </div>
 
