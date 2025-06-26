@@ -92,7 +92,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [soilMoistureUpperLimit, setSoilMoistureUpperLimit] = useState(0);
   const [soilMoistureLowerLimit, setSoilMoistureLowerLimit] = useState(0);
   const [waterLevelLimit, setWaterLevelLimit] = useState(0);
-  
+
   useEffect(() => {
     // Only connect in the browser environment
     if (typeof window === 'undefined') return;
@@ -136,22 +136,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       console.log('Reservoir 2 state updated:', reservoir2);
     });
 
-    // socketInstance.on('controllingStatus', (newLedState: boolean, selectedPumpMode: boolean) => {
-    //   setControllingStatus({ newLedState, selectedPumpMode });
-    //   console.log('Controlling status updated:', newLedState, selectedPumpMode);
-    // });
-
     socketInstance.on('sensorsData_controllingStatus', (soilMoisture: number, temperature: number, waterLevel: number, newLedState: boolean, selectedPumpMode: boolean) => {
       console.log('Sensors data and controlling status updated:', soilMoisture, temperature, waterLevel, newLedState, selectedPumpMode);
       setSensorsData({ soilMoisture, temperature, waterLevel });
-      // setControllingStatus({ newLedState, selectedPumpMode });
-    });
-
-    socketInstance.on('setLimit', (soilMoistureUpperLimit: number, soilMoistureLowerLimit: number, waterLevelLimit: number) => {
-      setSoilMoistureUpperLimitIs(soilMoistureUpperLimit);
-      setSoilMoistureLowerLimitIs(soilMoistureLowerLimit);
-      setWaterLevelLimitIs(waterLevelLimit);
-      console.log('Set limit from website:', soilMoistureUpperLimit, soilMoistureLowerLimit, waterLevelLimit);
     });
 
     // Handle initial devices list
@@ -174,6 +161,24 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     return () => {
       socketInstance.disconnect();
     };
+  }, []);
+
+  useEffect(() => {
+    const fetchLimit = async () => {
+      const response = await fetch('/api/limits?limitId=11');
+      const data = await response.json();
+      console.log(data);
+      setSoilMoistureUpperLimitIs(data.soilMoistureUpperLimit);
+      setSoilMoistureLowerLimitIs(data.soilMoistureLowerLimit);
+      setWaterLevelLimitIs(data.waterLevelLimit);
+    };
+
+    fetchLimit();
+
+    const interval = setInterval(fetchLimit, 2000);
+
+    // Cleanup
+    return () => clearInterval(interval);
   }, []);
 
   const toggleLED = () => {
@@ -224,7 +229,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     e.preventDefault();
     console.log('Setting limit:', soilMoistureUpperLimit, soilMoistureLowerLimit, waterLevelLimit);
     if (socket) {
-      socket.emit('setLimit', soilMoistureUpperLimit, soilMoistureLowerLimit, waterLevelLimit);
+      socket.emit('setNewLimit', soilMoistureUpperLimit, soilMoistureLowerLimit, waterLevelLimit);
     }
     setSoilMoistureUpperLimit(0);
     setSoilMoistureLowerLimit(0);

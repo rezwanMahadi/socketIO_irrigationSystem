@@ -37,28 +37,6 @@ export default function Home() {
     .filter(device => device.connected)
     .map(device => device.deviceId);
 
-  const [soilUplimit, setSoilUpLimit] = useState<any>(null);
-  const [soilLowLimit, setSoilLowLimit] = useState<any>(null);
-  const [waterLimit, setWaterLimit] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchLimit = async () => {
-      const response = await fetch('/api/limits?limitId=11');
-      const data = await response.json();
-      console.log(data);
-      setSoilUpLimit(data.soilMoistureUpperLimit);
-      setSoilLowLimit(data.soilMoistureLowerLimit);
-      setWaterLimit(data.waterLevelLimit);
-    };
-
-    fetchLimit();
-
-    const interval = setInterval(fetchLimit, 2000);
-
-    // Cleanup
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <main className='min-h-screen w-full bg-gradient-to-b from-blue-50 to-green-50 flex flex-col items-center justify-start p-4 md:p-6'>
       <div className="w-full max-w-7xl mx-auto">
@@ -233,17 +211,17 @@ export default function Home() {
                 <div className="space-y-4">
                   <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
                     <span className="font-medium text-gray-700">Soil Moisture Upper:</span>
-                    <span className="font-bold text-purple-700">{soilUplimit}%</span>
+                    <span className="font-bold text-purple-700">{soilMoistureUpperLimitIs}%</span>
                   </div>
                   
                   <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
                     <span className="font-medium text-gray-700">Soil Moisture Lower:</span>
-                    <span className="font-bold text-purple-700">{soilLowLimit}%</span>
+                    <span className="font-bold text-purple-700">{soilMoistureLowerLimitIs}%</span>
                   </div>
                   
                   <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
                     <span className="font-medium text-gray-700">Water Level Limit:</span>
-                    <span className="font-bold text-purple-700">{waterLimit}%</span>
+                    <span className="font-bold text-purple-700">{waterLevelLimitIs}%</span>
                   </div>
                 </div>
 
